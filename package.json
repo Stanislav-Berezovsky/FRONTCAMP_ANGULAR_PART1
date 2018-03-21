@@ -1,0 +1,19 @@
+{
+  "name": "frontcamp_angular_part1",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Stanislav-Berezovsky/FRONTCAMP_ANGULAR_PART1.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Stanislav-Berezovsky/FRONTCAMP_ANGULAR_PART1/issues"
+  },
+  "homepage": "https://github.com/Stanislav-Berezovsky/FRONTCAMP_ANGULAR_PART1#readme"
+}
