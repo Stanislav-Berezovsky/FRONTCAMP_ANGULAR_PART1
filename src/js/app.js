@@ -1,4 +1,20 @@
-var toDoListApp = angular.module('toDoListApp', []);
+var toDoListApp = angular.module('toDoListApp', ["ngRoute"]);
+
+toDoListApp.config(function($routeProvider) {
+    $routeProvider.when('/', {
+        templateUrl: '../templates/listTemplate.html',
+        controller: 'toDoItemController'
+    });
+    $routeProvider.when('/add', {
+        templateUrl: '../templates/additionTemplate.html',
+        controller: 'toDoItemController'
+    });
+    $routeProvider.when('/edit/:itemId', {
+            templateUrl: '../templates/editTemplate.html',
+            controller: 'toDoItemController'
+        })
+        .otherwise({ template: '<h1>404 - not found such page</h1>' });
+});
 
 toDoListApp.filter('itemsListDateFilter', function() {
     return function(items, dayCount) {
@@ -15,14 +31,17 @@ toDoListApp.filter('itemsListDateFilter', function() {
     }
 });
 
-toDoListApp.service('toDoItemService', function($http) {
+toDoListApp.service('toDoItemService', function($http, $q) {
     var sortOrder = {
-        description: true,
-        date: true
-    };
+            description: true,
+            date: true
+        },
+        filteredLists,
+        lastItemIndex = 0;
 
     function getToDoItemList() {
-        return $http({ method: 'GET', url: '../serverResponse/toDoList.json' })
+        return (filteredLists && lastItemIndex) ? $q.resolve({ filteredLists: filteredLists }) :
+            $http({ method: 'GET', url: '../serverResponse/toDoList.json' })
             .then(function(response) {
                 var toDoList = response.data.list;
 
@@ -31,8 +50,24 @@ toDoListApp.service('toDoItemService', function($http) {
                     return item;
                 });
 
-                return toDoList;
+                return setFilteredList(toDoList);
             })
+    }
+
+    function addNewItem(description) {
+        var now = new Date(),
+            newItem = {
+                itemId: lastItemIndex++,
+                description: description,
+                date: new Date(now.getFullYear(), now.getMonth(), now.getDate()),
+                isDone: false
+            };
+
+        filteredLists.processItemsList.push(newItem);
+    }
+
+    function updateItem(item) {
+    	(item.isDone ? filteredLists.doneItemsList: filteredLists.processItemsList)[item.index].description = item.text;
     }
 
     function sortToDoLists(itemLists, key) {
@@ -53,26 +88,67 @@ toDoListApp.service('toDoItemService', function($http) {
         }
     }
 
+
+    function setFilteredList(itemsList) {
+        filteredLists = {
+            doneItemsList: [],
+            processItemsList: []
+        }
+
+        lastItemIndex = itemsList.length;
+
+        itemsList.forEach(function(item) {
+            (item.isDone ? filteredLists.doneItemsList :
+                filteredLists.processItemsList).push(item);
+        });
+
+        return {
+            filteredLists: filteredLists
+        }
+    }
+
     return {
         getToDoItemList: getToDoItemList,
-        sortToDoLists: sortToDoLists
+        sortToDoLists: sortToDoLists,
+        addNewItem: addNewItem,
+        updateItem:updateItem
     }
 });
 
-toDoListApp.controller("toDoItemController", function($scope, toDoItemService) {
-    var now = new Date(),
-        lastItemIndex;
-
-    $scope.newItemText = '';
+toDoListApp.controller("toDoItemController", function($scope, toDoItemService, $routeParams) {
+    $scope.toDoItem = {
+        text: ''
+    };
 
     $scope.filteredLists = {
         processItemsList: [],
         doneItemsList: []
     };
 
-    toDoItemService.getToDoItemList().then(function(list) {
-        lastItemIndex = list.length;
-        setFilteredList(list);
+    toDoItemService.getToDoItemList().then(function(date) {
+        $scope.filteredLists = date.filteredLists;
+
+        if ($routeParams.itemId) {
+            var itemId = Number($routeParams.itemId),
+                itemForUpdate,
+                itemIndex = $scope.filteredLists.processItemsList.map(function(item) {
+                    return item.itemId;
+                }).indexOf(itemId);
+
+            if (itemIndex !== -1) {
+                itemForUpdate = $scope.filteredLists.processItemsList[itemIndex];
+            } else {
+                itemIndex = $scope.filteredLists.doneItemsList.map(function(item) {
+                    return item.itemId;
+                }).indexOf(itemId);
+
+                itemForUpdate = $scope.filteredLists.doneItemsList[itemIndex];
+            }
+
+            $scope.toDoItem = angular.copy(itemForUpdate) || $scope.toDoItem;
+            $scope.toDoItem.text =  $scope.toDoItem.description;
+            $scope.toDoItem.index = itemIndex;
+        }
     });
 
     $scope.changeToDoItemsState = function(item, itemIndex) {
@@ -91,14 +167,25 @@ toDoListApp.controller("toDoItemController", function($scope, toDoItemService) {
             return;
         }
 
-        var newItem = {
-            itemId: lastItemIndex++,
-            description: text,
-            date: new Date(now.getFullYear(), now.getMonth(), now.getDate()),
-            isDone: false
+        toDoItemService.addNewItem(text);
+        $scope.toDoItem.text = "";
+        alert('new to do item was added');
+    }
+
+    $scope.updateItem = function(item, itemForm) {
+        if (!itemForm.$valid) {
+            alert('Text for to do item should contain as minimal 20 character ');
+            return;
         }
 
-        $scope.filteredLists.processItemsList.push(newItem);
+        if (item.index === -1){
+        	alert('current item is not exist in items lists');
+        	return;
+        }
+
+		toDoItemService.updateItem(item);
+        $scope.toDoItem.text = "";
+        alert('to do item was updated');
     }
 
     $scope.sortByDate = function() {
@@ -108,11 +195,4 @@ toDoListApp.controller("toDoItemController", function($scope, toDoItemService) {
     $scope.sortByTitle = function() {
         toDoItemService.sortToDoLists($scope.filteredLists, 'description');
     }
-
-    function setFilteredList(itemsList) {
-        itemsList.forEach(function(item) {
-            (item.isDone ? $scope.filteredLists.doneItemsList :
-                $scope.filteredLists.processItemsList).push(item);
-        });
-    };
 });

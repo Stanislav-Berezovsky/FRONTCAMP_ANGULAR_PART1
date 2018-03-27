@@ -6,57 +6,15 @@
     <meta charset="utf-8">
     <link rel="stylesheet" type="text/css" href="./css/main.css">
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular-route.js"></script>  
 </head>
 
 <body ng-app="toDoListApp">
-    <div ng-controller="toDoItemController">
-       
-
-        <form name="toDoItemForm">
-            <fieldset>
-                <p>
-                    <label for="itemText">To do item text:</label>
-                    <input id="itemText" ng-model="newItemText" required ng-pattern="/[\w\s.,-]{20,}/"/>
-                </p>
-                 <button type="submit" ng-click="addNewItem(newItemText, toDoItemForm)">add item</button>
-            </fieldset>         
-        </form>
-
-        <div>
-        	<div class="filer-to-do">
-        		<label>Day count:</label>
-        		<input type="number" ng-model="oldDayCount">
-        	</div>
-        	<div class="filer-to-do">
-        		<button type="submit" ng-click="sortByTitle()">Sort by title</button>
-        	</div>
-        	<div class="filer-to-do">
-        		<button type="submit" ng-click="sortByDate()">Sort by date</button>
-        	</div>
-        </div>
-        
-        <label>New todos</label>
-        <div>
-            <div ng-repeat="item in filteredLists.processItemsList | itemsListDateFilter:oldDayCount">
-                <div class="to-do-item-list">
-                    <input type="checkbox" ng-model="item.isDone" ng-change="changeToDoItemsState(item,$index)">
-                    <span>{{item.description}}</span>
-                    <span>{{item.date.toLocaleDateString()}}</span>
-                </div>
-            </div>
-        </div>
-        <br>
-        <label>Done todos</label>
-        <div>
-            <div ng-repeat="item in filteredLists.doneItemsList | itemsListDateFilter:oldDayCount">
-                <div class="to-do-item-list">
-                    <input type="checkbox" ng-model="item.isDone" ng-change="changeToDoItemsState(item,$index)">
-                    <span>{{item.description}}</span>
-                    <span>{{item.date.toLocaleDateString()}}</span>
-                </div>
-            </div>
-        </div>
-    </div>
+	<a href="./#!/">To do list</a>
+	<a href="./#!/add">Add new to do</a>
+	<br>
+	<ng-view></ng-view>
+     </div>
     <script type="text/javascript" src="./js/app.js"></script>
 </body>
 
