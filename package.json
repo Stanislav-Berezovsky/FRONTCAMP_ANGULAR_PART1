@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/Stanislav-Berezovsky/FRONTCAMP_ANGULAR_PART1/issues"
   },
-  "homepage": "https://github.com/Stanislav-Berezovsky/FRONTCAMP_ANGULAR_PART1#readme"
+  "homepage": "https://github.com/Stanislav-Berezovsky/FRONTCAMP_ANGULAR_PART1#readme",
+  "devDependencies": {
+    "http-server": "^0.11.1"
+  }
 }
