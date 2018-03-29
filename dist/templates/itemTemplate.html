@@ -1,0 +1,14 @@
+<form name="toDoItemForm">
+    <fieldset>
+        <p>
+            <label for="itemText">To do item text:</label>
+            <input id="itemText" ng-model="toDoItem.text" required ng-pattern="/[\w\s.,-]{20,}/" />
+        </p>
+        <p class="invalid-message" ng-show="showInvalidMessage">
+        	{{showInvalidMessage}}
+        </p>
+        <button type="submit" ng-click="(toDoItem.itemId !== -1 ? updateItem:addNewItem)(toDoItem, toDoItemForm)">
+        	{{toDoItem.itemId !== -1  ? 'update' :'add'}} item
+        </button>
+    </fieldset>
+</form>

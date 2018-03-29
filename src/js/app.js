@@ -6,11 +6,11 @@ toDoListApp.config(function($routeProvider) {
         controller: 'toDoItemController'
     });
     $routeProvider.when('/add', {
-        templateUrl: '../templates/additionTemplate.html',
+        templateUrl: '../templates/itemTemplate.html',
         controller: 'toDoItemController'
     });
     $routeProvider.when('/edit/:itemId', {
-            templateUrl: '../templates/editTemplate.html',
+            templateUrl: '../templates/itemTemplate.html',
             controller: 'toDoItemController'
         })
         .otherwise({ template: '<h1>404 - not found such page</h1>' });

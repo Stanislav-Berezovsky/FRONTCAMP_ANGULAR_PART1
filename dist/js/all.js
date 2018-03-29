@@ -6,17 +6,18 @@ toDoListApp.config(function($routeProvider) {
         controller: 'toDoItemController'
     });
     $routeProvider.when('/add', {
-        templateUrl: '../templates/additionTemplate.html',
+        templateUrl: '../templates/itemTemplate.html',
         controller: 'toDoItemController'
     });
     $routeProvider.when('/edit/:itemId', {
-            templateUrl: '../templates/editTemplate.html',
+            templateUrl: '../templates/itemTemplate.html',
             controller: 'toDoItemController'
         })
         .otherwise({ template: '<h1>404 - not found such page</h1>' });
 });
-angular.module('toDoListApp').controller("toDoItemController", function($scope, toDoItemService, $routeParams) {
+angular.module('toDoListApp').controller("toDoItemController", function($scope, toDoItemService, $routeParams,$location) {
     $scope.toDoItem = {
+        itemId: -1,
         text: ''
     };
 
@@ -46,7 +47,7 @@ angular.module('toDoListApp').controller("toDoItemController", function($scope, 
             }
 
             $scope.toDoItem = angular.copy(itemForUpdate) || $scope.toDoItem;
-            $scope.toDoItem.text =  $scope.toDoItem.description;
+            $scope.toDoItem.text = $scope.toDoItem.description;
             $scope.toDoItem.index = itemIndex;
         }
     });
@@ -61,31 +62,31 @@ angular.module('toDoListApp').controller("toDoItemController", function($scope, 
         }
     };
 
-    $scope.addNewItem = function(text, itemForm) {
+    $scope.addNewItem = function(item, itemForm) {
         if (!itemForm.$valid) {
-            alert('Text for to do item should contain as minimal 20 character ');
+            $scope.showInvalidMessage = 'Text for to do item should contain as minimal 20 character ';
             return;
         }
 
-        toDoItemService.addNewItem(text);
-        $scope.toDoItem.text = "";
-        alert('new to do item was added');
+        toDoItemService.addNewItem(item.text);
+        $scope.showInvalidMessage = $scope.toDoItem.text = "";
+        $location.path('/');
     };
 
     $scope.updateItem = function(item, itemForm) {
         if (!itemForm.$valid) {
-            alert('Text for to do item should contain as minimal 20 character ');
+            $scope.showInvalidMessage = 'Text for to do item should contain as minimal 20 character ';
             return;
         }
 
-        if (item.index === -1){
-        	alert('current item is not exist in items lists');
-        	return;
+        if (item.itemId === -1) {
+            $scope.showInvalidMessage = 'Current item is not exist in items lists, use add form to create new one';
+            return;
         }
 
-		toDoItemService.updateItem(item);
-        $scope.toDoItem.text = "";
-        alert('to do item was updated');
+        toDoItemService.updateItem(item);
+        $scope.showInvalidMessage = $scope.toDoItem.text = "";
+        $location.path('/');
     };
 
     $scope.sortByDate = function() {
@@ -94,20 +95,6 @@ angular.module('toDoListApp').controller("toDoItemController", function($scope, 
 
     $scope.sortByTitle = function() {
         toDoItemService.sortToDoLists($scope.filteredLists, 'description');
-    };
-});
-angular.module('toDoListApp').filter('itemsListDateFilter', function() {
-    return function(items, dayCount) {
-        var compareDate,
-            now = new Date();
-
-        dayCount = dayCount || 0;
-        compareDate = new Date(now.getFullYear(),
-            now.getMonth(), now.getDate() - dayCount);
-
-        return items.filter(function(item) {
-            return compareDate >= item.date;
-        });
     };
 });
 angular.module('toDoListApp').service('toDoItemService', function($http, $q) {
@@ -191,5 +178,19 @@ angular.module('toDoListApp').service('toDoItemService', function($http, $q) {
         sortToDoLists: sortToDoLists,
         addNewItem: addNewItem,
         updateItem:updateItem
+    };
+});
+angular.module('toDoListApp').filter('itemsListDateFilter', function() {
+    return function(items, dayCount) {
+        var compareDate,
+            now = new Date();
+
+        dayCount = dayCount || 0;
+        compareDate = new Date(now.getFullYear(),
+            now.getMonth(), now.getDate() - dayCount);
+
+        return items.filter(function(item) {
+            return compareDate >= item.date;
+        });
     };
 });

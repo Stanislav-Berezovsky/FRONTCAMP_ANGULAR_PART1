@@ -6,3 +6,7 @@
 	display: inline-block;
 	margin: 10px;
 }
+
+.invalid-message{
+	color:red;
+}
