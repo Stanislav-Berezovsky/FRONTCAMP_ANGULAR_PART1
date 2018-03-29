@@ -19,7 +19,11 @@
   "homepage": "https://github.com/Stanislav-Berezovsky/FRONTCAMP_ANGULAR_PART1#readme",
   "devDependencies": {
     "gulp": "^3.9.1",
+    "gulp-concat": "2.6.0",
+    "gulp-jshint": "^2.0.2",
     "gulp-webserver": "^0.9.1",
-    "http-server": "^0.11.1"
+    "http-server": "^0.11.1",
+    "jshint": "^2.9.5",
+    "run-sequence": "1.2.2"
   }
 }
