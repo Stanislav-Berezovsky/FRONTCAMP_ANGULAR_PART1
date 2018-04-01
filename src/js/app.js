@@ -1,4 +1,4 @@
-var toDoListApp = angular.module('toDoListApp', ["ngRoute"]);
+var toDoListApp = angular.module('toDoListApp', ["ngRoute","ngResource"]);
 
 toDoListApp.config(function($routeProvider) {
     $routeProvider.when('/', {

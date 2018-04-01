@@ -1,5 +1,4 @@
-{
-    "list": [
+[
     {
         "itemId": 0,
         "description": "qqqqqqqqqqqqqqqqqqqqqqqqqqqqqq",
@@ -35,5 +34,5 @@
         "description": "tttttttttttttttttt",
         "isDone": false,
         "date": "2018-03-21T21:00:00.000Z"
-    }]
-}
+    }
+]

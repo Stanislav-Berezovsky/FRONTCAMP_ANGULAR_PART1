@@ -1,4 +1,4 @@
-angular.module('toDoListApp').controller("toDoItemController", function($scope, toDoItemService, $routeParams,$location) {
+angular.module('toDoListApp').controller("toDoItemController", function($scope, toDoItemService, $routeParams,$location,toDoItemFactory) {
     $scope.toDoItem = {
         itemId: -1,
         text: ''

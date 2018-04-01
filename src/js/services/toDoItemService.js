@@ -1,4 +1,4 @@
-angular.module('toDoListApp').service('toDoItemService', function($http, $q) {
+angular.module('toDoListApp').service('toDoItemService', function($http, $q, toDoItemFactory) {
     var sortOrder = {
             description: true,
             date: true
@@ -8,11 +8,8 @@ angular.module('toDoListApp').service('toDoItemService', function($http, $q) {
 
     function getToDoItemList() {
         return (filteredLists && lastItemIndex) ? $q.resolve({ filteredLists: filteredLists }) :
-            $http({ method: 'GET', url: '../serverResponse/toDoList.json' })
-            .then(function(response) {
-                var toDoList = response.data.list;
-
-                toDoList.forEach(function(item) {
+            toDoItemFactory.query().$promise.then(function(response) {
+                var toDoList = response.map(function(item) {
                     item.date = new Date(item.date);
                     return item;
                 });
@@ -34,7 +31,7 @@ angular.module('toDoListApp').service('toDoItemService', function($http, $q) {
     }
 
     function updateItem(item) {
-    	(item.isDone ? filteredLists.doneItemsList: filteredLists.processItemsList)[item.index].description = item.text;
+        (item.isDone ? filteredLists.doneItemsList : filteredLists.processItemsList)[item.index].description = item.text;
     }
 
     function sortToDoLists(itemLists, key) {
@@ -78,6 +75,6 @@ angular.module('toDoListApp').service('toDoItemService', function($http, $q) {
         getToDoItemList: getToDoItemList,
         sortToDoLists: sortToDoLists,
         addNewItem: addNewItem,
-        updateItem:updateItem
+        updateItem: updateItem
     };
 });

@@ -1,4 +1,4 @@
-var toDoListApp = angular.module('toDoListApp', ["ngRoute"]);
+var toDoListApp = angular.module('toDoListApp', ["ngRoute","ngResource"]);
 
 toDoListApp.config(function($routeProvider) {
     $routeProvider.when('/', {
@@ -15,7 +15,7 @@ toDoListApp.config(function($routeProvider) {
         })
         .otherwise({ template: '<h1>404 - not found such page</h1>' });
 });
-angular.module('toDoListApp').controller("toDoItemController", function($scope, toDoItemService, $routeParams,$location) {
+angular.module('toDoListApp').controller("toDoItemController", function($scope, toDoItemService, $routeParams,$location,toDoItemFactory) {
     $scope.toDoItem = {
         itemId: -1,
         text: ''
@@ -97,7 +97,13 @@ angular.module('toDoListApp').controller("toDoItemController", function($scope, 
         toDoItemService.sortToDoLists($scope.filteredLists, 'description');
     };
 });
-angular.module('toDoListApp').service('toDoItemService', function($http, $q) {
+angular.module('toDoListApp').factory('toDoItemFactory', function($resource) {
+    return $resource('/serverResponse/:fileId.:format', {
+        fileId: 'toDoList',
+        format: 'json'
+    });
+});
+angular.module('toDoListApp').service('toDoItemService', function($http, $q, toDoItemFactory) {
     var sortOrder = {
             description: true,
             date: true
@@ -107,11 +113,8 @@ angular.module('toDoListApp').service('toDoItemService', function($http, $q) {
 
     function getToDoItemList() {
         return (filteredLists && lastItemIndex) ? $q.resolve({ filteredLists: filteredLists }) :
-            $http({ method: 'GET', url: '../serverResponse/toDoList.json' })
-            .then(function(response) {
-                var toDoList = response.data.list;
-
-                toDoList.forEach(function(item) {
+            toDoItemFactory.query().$promise.then(function(response) {
+                var toDoList = response.map(function(item) {
                     item.date = new Date(item.date);
                     return item;
                 });
@@ -133,7 +136,7 @@ angular.module('toDoListApp').service('toDoItemService', function($http, $q) {
     }
 
     function updateItem(item) {
-    	(item.isDone ? filteredLists.doneItemsList: filteredLists.processItemsList)[item.index].description = item.text;
+        (item.isDone ? filteredLists.doneItemsList : filteredLists.processItemsList)[item.index].description = item.text;
     }
 
     function sortToDoLists(itemLists, key) {
@@ -177,7 +180,7 @@ angular.module('toDoListApp').service('toDoItemService', function($http, $q) {
         getToDoItemList: getToDoItemList,
         sortToDoLists: sortToDoLists,
         addNewItem: addNewItem,
-        updateItem:updateItem
+        updateItem: updateItem
     };
 });
 angular.module('toDoListApp').filter('itemsListDateFilter', function() {
